@@ -12,7 +12,9 @@ import org.eclipse.jetty.deploy.App;
 import org.eclipse.jetty.deploy.providers.WebAppProvider;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandler.AliasCheck;
 import org.eclipse.jetty.util.annotation.ManagedObject;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 @ManagedObject("Provider for start-up deployement of webapps based on presence in directory")
@@ -21,7 +23,30 @@ public class MyWebAppProvider extends WebAppProvider {
     @Override
     public ContextHandler createContextHandler(final App app) throws Exception {
         final ContextHandler handler = super.createContextHandler(app);
-        
+        handler.addAliasCheck(new AliasCheck() {
+            @Override
+            public boolean check(String path, Resource resource) {
+                /* JW: TODO: FIXME:
+                 * 
+                 *  alias /mnt/optical/home/jesse/git/opennms/target/opennms-19.0.0-SNAPSHOT/jetty-webapps/opennms/WEB-INF/jsp/support/index.jsp
+                    path /mnt/optical/home/jesse/git/opennms/target/opennms-19.0.0-SNAPSHOT/jetty-webapps/opennms/WEB-INF/jsp/support/index.jsp
+                    uri file:///mnt/optical/home/jesse/git/opennms/target/opennms-19.0.0-SNAPSHOT/jetty-webapps/opennms/WEB-INF/jsp//support/index.jsp
+                    
+                    
+                    UnitPath path = /mnt/optical/home/jesse/git/opennms/target/opennms-19.0.0-SNAPSHOT/jetty-webapps/opennms/WEB-INF/jsp/support/index.jsp
+                    
+                    URI uri = file:///mnt/optical/home/jesse/git/opennms/target/opennms-19.0.0-SNAPSHOT/jetty-webapps/opennms/WEB-INF/jsp//support/index.jsp
+                    
+                    if(!URIUtil.equalsIgnoreEncodings(uri,path.toUri()))
+                            {
+                                return new File(uri).toPath().toAbsolutePath();
+                            }
+                 * 
+                 */
+                return true;
+            }
+        });
+
         /*
          * Pulled from: http://bengreen.eu/fancyhtml/quickreference/jettyjsp9error.html
          *
